@@ -26,9 +26,30 @@ services:
     networks:
       - bank-network
 
+  
+  zabbix-agent:
+    image: zabbix/zabbix-agent:latest
+    container_name: zabbix-agent-bankapp
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_HOSTNAME: bankapp-server
+      ZBX_METADATA: bankapp
+    ports:
+      - "10050:10050"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./zabbix-agent:/etc/zabbix/zabbix_agentd.d:ro
+    networks:
+      - bank-network
+      - zabbix-net
+    restart: unless-stopped
+
 volumes:
   mysql_data:
 
 networks:
   bank-network:
     driver: bridge
+  zabbix-net:
+    external: true
+    name: 3-tier-banking-app_zabbix-net
